@@ -1,7 +1,8 @@
-const locate = require('./Locate')
+import locate from "./Locate.js"
 
-const click_on = (descriptor, page) => {
-    
+const click_on = async (descriptor, page, cursor) => {
+    await locate(descriptor, page, cursor);
+    cursor.click()
 }
 
-module.exports = click_on
+export default click_on;
