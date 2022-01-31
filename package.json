@@ -1,0 +1,27 @@
+{
+  "name": "troll",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drg101/troll.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/drg101/troll/issues"
+  },
+  "homepage": "https://github.com/drg101/troll#readme",
+  "dependencies": {
+    "fuse.js": "^6.5.3",
+    "ghost-cursor": "^1.1.8",
+    "puppeteer": "^13.1.2",
+    "puppeteer-core": "^13.1.2"
+  },  
+  "type": "module"
+}
