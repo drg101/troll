@@ -1,6 +1,8 @@
 import Fuse from 'fuse.js';
 import color_to_name from './ColorToName.js'
 
+let count = 0;
+
 const locate = async (descriptor, page, cursor) => {
 
     // const aHandle = await page.evaluateHandle('document'); // Handle for the 'document'
@@ -43,7 +45,7 @@ const locate = async (descriptor, page, cursor) => {
             const rect = el.getBoundingClientRect(),
                 scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
                 scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            return { top: rect.top + scrollTop + el.offsetHeight / 2, left: rect.left + scrollLeft + el.offsetWidth / 2 }
+            return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
         }
 
         const all_elements = Array.from(document.getElementsByTagName('*'));
@@ -53,6 +55,8 @@ const locate = async (descriptor, page, cursor) => {
             return {
                 innerText: e.innerText,
                 offset: offset(e),
+                width: e.offsetWidth,
+                height: e.offsetHeight,
                 id: e.id ?? '',
                 title: e.title ?? '',
                 className: e.className ?? '',
@@ -80,14 +84,23 @@ const locate = async (descriptor, page, cursor) => {
     });
 
     const res = fuse.search(descriptor);
-    console.log(res)
+    // console.log(res)
     const element_to_click_on = res[0].item
     element_to_click_on.score = res[0].score
     console.log(element_to_click_on)
     console.log(descriptor)
+    await page.screenshot({
+        'path': `clicked_on_${count++}.png`, 
+        'clip': {
+            'x': element_to_click_on.offset.left, 
+            'y': element_to_click_on.offset.top, 
+            'width': element_to_click_on.width, 
+            'height': element_to_click_on.height
+        }
+    });
     const position_going_to = {
-        x: element_to_click_on.offset.left,
-        y: element_to_click_on.offset.top
+        x: element_to_click_on.offset.left + (element_to_click_on.width * (Math.random() / 2)) + (element_to_click_on.width / 4),
+        y: element_to_click_on.offset.top + (element_to_click_on.height * (Math.random() / 2)) + (element_to_click_on.height / 4),
     }
     await cursor.moveTo(position_going_to);
     return position_going_to

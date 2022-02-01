@@ -60,6 +60,9 @@ const fakerator = Fakerator();
     await keyboard("1994", page)
     await click_on("blue next", page, cursor)
 
+    // await page.waitForTimeout(10000)
+    // await click_on("blue next", page, cursor)
+
     // await click_on('month', page, cursor);
     // await page.waitForTimeout(500)
     // await click_on('august', page, cursor);
