@@ -17,7 +17,6 @@ const color_to_name = (color) => {
         }
     }).sort((a,b) => a.d - b.d)
 
-    console.log(distances)
     return distances[0]
 } 
 

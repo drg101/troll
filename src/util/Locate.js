@@ -59,6 +59,7 @@ const locate = async (descriptor, page, cursor) => {
                 name: e.name ?? '',
                 placeholder: e.placeholder ?? '',
                 value: e.value ?? '',
+                label: e.label ?? '',
                 backgroundColor: window.getComputedStyle(e).backgroundColor ?? ''
             }
         });
@@ -84,10 +85,12 @@ const locate = async (descriptor, page, cursor) => {
     element_to_click_on.score = res[0].score
     console.log(element_to_click_on)
     console.log(descriptor)
-    await cursor.moveTo({
+    const position_going_to = {
         x: element_to_click_on.offset.left,
         y: element_to_click_on.offset.top
-    });
+    }
+    await cursor.moveTo(position_going_to);
+    return position_going_to
 }
 
 export default locate;
