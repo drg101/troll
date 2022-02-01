@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/drg101/troll#readme",
   "dependencies": {
+    "chroma-js": "^2.3.0",
+    "color-namer": "^1.4.0",
     "fakerator": "^0.3.5",
     "fuse.js": "^6.5.3",
     "generate-password": "^1.7.0",

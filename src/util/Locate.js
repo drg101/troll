@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js';
-
+import color_to_name from './ColorToName.js'
 
 const locate = async (descriptor, page, cursor) => {
 
@@ -58,17 +58,28 @@ const locate = async (descriptor, page, cursor) => {
                 className: e.className ?? '',
                 name: e.name ?? '',
                 placeholder: e.placeholder ?? '',
-                value: e.value ?? ''
+                value: e.value ?? '',
+                backgroundColor: window.getComputedStyle(e).backgroundColor ?? ''
             }
         });
         return elements_text
+    });
+
+    const elements_bg_color_encoded = elements.map(e => {
+        return {
+            ...e,
+            backgroundColor: e.backgroundColor === '' ? '' : color_to_name(e.backgroundColor).name,
+            bgC: e.backgroundColor
+        }
     })
-    const fuse = new Fuse(elements, {
+
+    const fuse = new Fuse(elements_bg_color_encoded, {
         includeScore: true,
-        keys: ['innerText', 'title', 'id', 'name', 'placeholder', 'value']
+        keys: ['innerText', 'title', 'id', 'name', 'placeholder', 'value', 'backgroundColor']
     });
 
     const res = fuse.search(descriptor);
+    console.log(res)
     const element_to_click_on = res[0].item
     element_to_click_on.score = res[0].score
     console.log(element_to_click_on)

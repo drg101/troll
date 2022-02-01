@@ -41,7 +41,7 @@ const fakerator = Fakerator();
     await page.waitForTimeout(500)
     await click_on('create password', page, cursor);
     await keyboard(fake_user.password, page)
-    await click_on('next', page, cursor)
+    await click_on('blue next', page, cursor)
 
     // await page.waitForNavigation({waitUntil: 'networkidle2'});
     // await installMouseHelper(page);
