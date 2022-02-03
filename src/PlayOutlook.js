@@ -13,7 +13,15 @@ import prompt from 'prompt';
 const fakerator = Fakerator();
 
 (async () => {
-    const browser = await puppeteer.launch({ headless: false, defaultViewport: null });
+    const browser = await puppeteer.launch({ 
+        headless: false, 
+        defaultViewport: null,
+        args: [
+            '--disable-web-security',
+            '--disable-site-isolation-trials',
+            '--user-data-dir=/home/drg101/troll_data_dir/'
+        ] 
+    });
     const context = browser.defaultBrowserContext();
     context.overridePermissions("https://www.reddit.com", ["geolocation", "notifications"]);
     const page = await browser.newPage();
@@ -28,6 +36,7 @@ const fakerator = Fakerator();
     await page.waitForNavigation({waitUntil: 'networkidle2'});
     await click_on('Outlook free personal email and calendar from Microsoft', page, cursor);
     await page.waitForNavigation({waitUntil: 'networkidle2'});
+
     await click_on('create free account', page, cursor);
 
 
@@ -65,6 +74,7 @@ const fakerator = Fakerator();
     // await click_on("blue next", page, cursor)
 
     await prompt.get('done w/ captcha?');
+    await click_on("blue next", page, cursor)
 
     // await click_on('month', page, cursor);
     // await page.waitForTimeout(500)

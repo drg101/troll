@@ -13,8 +13,10 @@ const locate = async (descriptor, page, cursor) => {
     // const aHandle = await page.evaluateHandle('document'); // Handle for the 'document'
     const elements = await page.evaluate(async () => {
         function isVisible(elem) {
-            if (!(elem instanceof Element)) throw Error('DomUtil: elem is not an element.');
+            console.log({elem})
             const style = getComputedStyle(elem);
+
+            if (!(elem instanceof Element)) return false;
             if (style.display === 'none') return false;
             if (style.visibility !== 'visible') return false;
             if (style.opacity < 0.1) return false;
@@ -47,16 +49,49 @@ const locate = async (descriptor, page, cursor) => {
         }
 
         const offset = (el) => {
+            console.log({el})
             const rect = el.getBoundingClientRect(),
                 scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
                 scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
         }
 
-        const all_elements = Array.from(document.getElementsByTagName('*'));
-        const elements_text = all_elements.filter(e => {
-            return isVisible(e)
-        }).map(e => {
+        let base_elements_and_offsets = Array.from(document.getElementsByTagName('*')).map(element => {
+            return {
+                element,
+                offset: { top: 0, left: 0 }
+            }
+        });
+
+        let iframes_and_offsets = base_elements_and_offsets.filter(o => o.element.tagName === "IFRAME");
+
+        let all_elements_and_offsets = base_elements_and_offsets;
+
+        while (iframes_and_offsets.length) {
+            const iframe_and_offset = iframes_and_offsets.shift()
+            const additonal_offset = offset(iframe_and_offset.element)
+            if (!iframe_and_offset.element.contentDocument){
+                continue;
+            }
+            const additional_elements = Array.from(iframe_and_offset.element.contentDocument.body.getElementsByTagName("*")).map(element => {
+                return {
+                    element,
+                    offset: {
+                        top: iframe_and_offset.offset.top + additonal_offset.top,
+                        left: iframe_and_offset.offset.left + additonal_offset.left
+                    }
+                }
+            });
+            const additional_iframes = additional_elements.filter(o => o.element.tagName === "IFRAME");
+            iframes_and_offsets = [...iframes_and_offsets, ...additional_iframes]
+            all_elements_and_offsets = [...all_elements_and_offsets, ...additional_elements]
+        }
+
+
+        const elements_text = all_elements_and_offsets.filter(element_and_offset => {
+            return isVisible(element_and_offset.element)
+        }).map(element_and_offset => {
+            e = element_and_offset.element
             return {
                 innerText: e.innerText,
                 offset: offset(e),
@@ -68,7 +103,8 @@ const locate = async (descriptor, page, cursor) => {
                 name: e.name ?? '',
                 placeholder: e.placeholder ?? '',
                 value: e.value ?? '',
-                label: e.label ?? ''            }
+                label: e.label ?? ''
+            }
         });
         return elements_text
     });
@@ -83,7 +119,7 @@ const locate = async (descriptor, page, cursor) => {
             color_hex = await get_image_color(area_image);
             // ocr_text = await get_image_text(area_image);
             // console.log("s")
-            ocr_text = "" 
+            ocr_text = ""
         }
         catch {
             console.log("e")
@@ -106,13 +142,13 @@ const locate = async (descriptor, page, cursor) => {
     });
 
     const res = fuse.search(descriptor);
-    console.log(res.slice(0,10))
+    console.log(res.slice(0, 10))
     const element_to_click_on = res[0].item
     element_to_click_on.score = res[0].score
     console.log(element_to_click_on)
     console.log(descriptor)
     // await get_area_color(screenshot_jimp, element_to_click_on.offset.left, element_to_click_on.offset.top, element_to_click_on.width, element_to_click_on.height, page, true)
-    
+
 
     const position_going_to = {
         x: element_to_click_on.offset.left + (element_to_click_on.width * (Math.random() / 2)) + (element_to_click_on.width / 4),
