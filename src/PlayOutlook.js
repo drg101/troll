@@ -8,6 +8,7 @@ import { createCursor } from 'ghost-cursor';
 import Fakerator from 'fakerator';
 import keyboard from './util/Keyboard.js';
 import { generate } from 'generate-password';
+import prompt from 'prompt';
 
 const fakerator = Fakerator();
 
@@ -60,8 +61,10 @@ const fakerator = Fakerator();
     await keyboard("1994", page)
     await click_on("blue next", page, cursor)
 
-    // await page.waitForTimeout(10000)
+    await page.waitForTimeout(10000)
     // await click_on("blue next", page, cursor)
+
+    await prompt.get('done w/ captcha?');
 
     // await click_on('month', page, cursor);
     // await page.waitForTimeout(500)

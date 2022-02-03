@@ -1,5 +1,10 @@
 import Fuse from 'fuse.js';
+import Jimp from "jimp";
+
 import color_to_name from './ColorToName.js'
+import get_area_image from './GetAreaImage.js'
+import get_image_color from './GetImageColor.js'
+import get_image_text from './GetImageText.js'
 
 let count = 0;
 
@@ -63,41 +68,52 @@ const locate = async (descriptor, page, cursor) => {
                 name: e.name ?? '',
                 placeholder: e.placeholder ?? '',
                 value: e.value ?? '',
-                label: e.label ?? '',
-                backgroundColor: window.getComputedStyle(e).backgroundColor ?? ''
-            }
+                label: e.label ?? ''            }
         });
         return elements_text
     });
 
-    const elements_bg_color_encoded = elements.map(e => {
+    const page_screenshot_buffer = await page.screenshot();
+    const screenshot_jimp = await Jimp.read(page_screenshot_buffer)
+    const elements_bg_color_encoded = await Promise.all(elements.map(async e => {
+        let color_hex;
+        let ocr_text;
+        try {
+            const area_image = await get_area_image(screenshot_jimp, e.offset.left, e.offset.top, e.width, e.height)
+            color_hex = await get_image_color(area_image);
+            // ocr_text = await get_image_text(area_image);
+            // console.log("s")
+            ocr_text = "" 
+        }
+        catch {
+            console.log("e")
+            color_hex = "#000000"
+            ocr_text = ""
+        }
+
         return {
             ...e,
-            backgroundColor: e.backgroundColor === '' ? '' : color_to_name(e.backgroundColor).name,
-            bgC: e.backgroundColor
+            backgroundColor: color_to_name(color_hex).name,
+            ocr_text
         }
-    })
+    }));
+
+    // console.log(elements_bg_color_encoded)
 
     const fuse = new Fuse(elements_bg_color_encoded, {
         includeScore: true,
-        keys: ['innerText', 'title', 'id', 'name', 'placeholder', 'value', 'backgroundColor']
+        keys: ['innerText', 'title', 'id', 'name', 'placeholder', 'value', 'backgroundColor', 'ocr_text']
     });
 
     const res = fuse.search(descriptor);
-    // console.log(res)
+    console.log(res.slice(0,10))
     const element_to_click_on = res[0].item
     element_to_click_on.score = res[0].score
     console.log(element_to_click_on)
     console.log(descriptor)
-    await page.screenshot({
-        'path': `clicked_on_${count++}.png`, 
-        'clip': {
-            'x': element_to_click_on.offset.left, 
-            'y': element_to_click_on.offset.top, 
-            'width': element_to_click_on.width, 
-            'height': element_to_click_on.height
-        }
-    });
+    // await get_area_color(screenshot_jimp, element_to_click_on.offset.left, element_to_click_on.offset.top, element_to_click_on.width, element_to_click_on.height, page, true)
+    
+
     const position_going_to = {
         x: element_to_click_on.offset.left + (element_to_click_on.width * (Math.random() / 2)) + (element_to_click_on.width / 4),
         y: element_to_click_on.offset.top + (element_to_click_on.height * (Math.random() / 2)) + (element_to_click_on.height / 4),
