@@ -12,11 +12,11 @@ const locate = async (descriptor, page, cursor) => {
 
     // const aHandle = await page.evaluateHandle('document'); // Handle for the 'document'
     const elements = await page.evaluate(async () => {
-        function isVisible(elem) {
+        function isVisible(elem, additional_offset={top: 0, left: 0}) {
             console.log({elem})
             const style = getComputedStyle(elem);
 
-            if (!(elem instanceof Element)) return false;
+            // if (!(elem instanceof Element)) return false;
             if (style.display === 'none') return false;
             if (style.visibility !== 'visible') return false;
             if (style.opacity < 0.1) return false;
@@ -28,8 +28,8 @@ const locate = async (descriptor, page, cursor) => {
             console.log({ elem })
             try {
                 elemCenter = {
-                    x: elem.getBoundingClientRect().left + (elem.offsetWidth ?? elem.getBBox().width) / 2,
-                    y: elem.getBoundingClientRect().top + (elem.offsetHeight ?? elem.getBBox().height) / 2
+                    x: elem.getBoundingClientRect().left + (elem.offsetWidth ?? elem.getBBox().width) / 2 + additional_offset.left,
+                    y: elem.getBoundingClientRect().top + (elem.offsetHeight ?? elem.getBBox().height) / 2 + additional_offset.top
                 };
             }
             catch {
@@ -41,6 +41,11 @@ const locate = async (descriptor, page, cursor) => {
             if (elemCenter.y > (document.documentElement.clientHeight || window.innerHeight)) return false;
             console.log({ x: elemCenter.x, y: elemCenter.y })
             let pointContainer = document.elementFromPoint(elemCenter.x, elemCenter.y);
+            while (pointContainer?.tagName === "IFRAME" && elem.tagName !== "IFRAME"){
+                elemCenter.y -= pointContainer.getBoundingClientRect().top
+                elemCenter.x -= pointContainer.getBoundingClientRect().left
+                pointContainer = pointContainer.contentDocument.elementFromPoint(elemCenter.x, elemCenter.y);
+            }
             do {
                 if (!pointContainer) break;
                 if (pointContainer === elem) return true;
@@ -89,12 +94,17 @@ const locate = async (descriptor, page, cursor) => {
 
 
         const elements_text = all_elements_and_offsets.filter(element_and_offset => {
-            return isVisible(element_and_offset.element)
+            return isVisible(element_and_offset.element, element_and_offset.offset)
         }).map(element_and_offset => {
             e = element_and_offset.element
+            const outer_offset = element_and_offset.offset;
+            const inner_offset = offset(element_and_offset.element)
             return {
                 innerText: e.innerText,
-                offset: offset(e),
+                offset: {
+                    top: inner_offset.top + outer_offset.top,
+                    left: inner_offset.left + outer_offset.left
+                },
                 width: e.offsetWidth,
                 height: e.offsetHeight,
                 id: e.id ?? '',
