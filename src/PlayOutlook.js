@@ -10,6 +10,7 @@ import keyboard from './util/Keyboard.js';
 import prompt from 'prompt';
 import create_fake_user from './util/CreateFakeUser.js';
 import numeric_month_to_month from './util/NumericMonthToMonth.js';
+import { add_to_firestore } from './util/Firestore.js';
 
 const fakerator = Fakerator();
 
@@ -49,12 +50,12 @@ const fakerator = Fakerator();
     await click_on('next', page, cursor)
 
     // await page.waitForNavigation({waitUntil: 'networkidle2'});
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     await click_on('create password', page, cursor);
     await keyboard(fake_user.password, page)
     await click_on('blue next', page, cursor)
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1500)
     await click_on('first name', page, cursor);
     await keyboard(fake_user.first_name, page)
     await click_on('last name', page, cursor)
@@ -76,6 +77,10 @@ const fakerator = Fakerator();
     await click_on("no", page, cursor)
 
     console.log(fake_user)
+
+    console.log("^^^ Adding to firestore ^^^")
+    await add_to_firestore("users", fake_user)
+    console.log("Added to firestore")
     
     // console.log('Dimensions:', dimensions);
 
