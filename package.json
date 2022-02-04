@@ -23,6 +23,7 @@
     "color-namer": "^1.4.0",
     "fakerator": "^0.3.5",
     "fast-average-color-node": "^2.1.0",
+    "firebase-admin": "^10.0.2",
     "fuse.js": "^6.5.3",
     "generate-password": "^1.7.0",
     "ghost-cursor": "^1.1.8",

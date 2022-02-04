@@ -7,8 +7,9 @@ const { installMouseHelper } = pkg;
 import { createCursor } from 'ghost-cursor';
 import Fakerator from 'fakerator';
 import keyboard from './util/Keyboard.js';
-import { generate } from 'generate-password';
 import prompt from 'prompt';
+import create_fake_user from './util/CreateFakeUser.js';
+import numeric_month_to_month from './util/NumericMonthToMonth.js';
 
 const fakerator = Fakerator();
 
@@ -40,13 +41,11 @@ const fakerator = Fakerator();
     await click_on('create free account', page, cursor);
 
 
-    const fake_user = fakerator.entity.user('M');
-    fake_user.userName = `${fake_user.firstName}${fake_user.lastName}${Math.floor(Math.random() * 999999)}`.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
-    fake_user.password = generate({ numbers: true, length: 15 })
+    const fake_user = create_fake_user('M', 'outlook')
 
     await page.waitForNavigation({waitUntil: 'networkidle2'});
     await click_on('new email', page, cursor);
-    await keyboard(fake_user.userName, page)
+    await keyboard(fake_user.username, page)
     await click_on('next', page, cursor)
 
     // await page.waitForNavigation({waitUntil: 'networkidle2'});
@@ -57,47 +56,24 @@ const fakerator = Fakerator();
 
     await page.waitForTimeout(500)
     await click_on('first name', page, cursor);
-    await keyboard(fake_user.firstName, page)
+    await keyboard(fake_user.first_name, page)
     await click_on('last name', page, cursor)
-    await keyboard(fake_user.lastName, page)
+    await keyboard(fake_user.last_name, page)
     await click_on('blue next', page, cursor)
 
 
     await page.waitForTimeout(1500)
-    await select("month", "may", page, cursor)
-    await select("day", "31", page, cursor)
+    await select("month", numeric_month_to_month(fake_user.birth_month), page, cursor)
+    await select("day", `${fake_user.birth_day}`, page, cursor)
     await click_on("year", page, cursor)
-    await keyboard("1994", page)
+    await keyboard(`${fake_user.birth_year}`, page)
     await click_on("blue next", page, cursor)
 
     await page.waitForTimeout(10000)
     // await click_on("blue next", page, cursor)
     await click_on("blue next", page, cursor)
     await prompt.get('done w/ captcha?');
-
-
-    // await click_on('month', page, cursor);
-    // await page.waitForTimeout(500)
-    // await click_on('august', page, cursor);
-    // await page.waitForTimeout(500)
-    // await click_on('day', page, cursor);
-    // await page.waitForTimeout(500)
-    // await click_on('18', page, cursor);
-
-    // await page.waitForNavigation({waitUntil: 'networkidle2'});
-    // await installMouseHelper(page);
-    // await click_on('first name', page, cursor);
-    // await keyboard(fake_user.firstName, page);
-    // await click_on('last name', page, cursor);
-    // await keyboard(fake_user.lastName, page);
-    // await click_on('username', page, cursor);
-    // await keyboard(fake_user.userName, page)
-    // await click_on('password', page, cursor);
-    // await keyboard(fake_user.password, page)
-    // await click_on('confirm', page, cursor);
-    // await keyboard(fake_user.password, page);
-    // await click_on('next', page, cursor)
-
+    await click_on("no", page, cursor)
 
     console.log(fake_user)
     
