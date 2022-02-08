@@ -1,8 +1,13 @@
 import locate from "./Locate.js"
 
 const click_on = async (descriptor, page, cursor) => {
-    await locate(descriptor, page, cursor);
-    cursor.click()
+    try {
+        await locate(descriptor, page, cursor);
+        cursor.click()
+    }
+    catch (e) {
+        console.error(e)
+    }
 }
 
 export default click_on;

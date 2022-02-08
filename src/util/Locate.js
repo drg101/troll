@@ -132,7 +132,6 @@ const locate = async (descriptor, page, cursor) => {
             ocr_text = ""
         }
         catch {
-            console.log("e")
             color_hex = "#000000"
             ocr_text = ""
         }
@@ -152,7 +151,6 @@ const locate = async (descriptor, page, cursor) => {
     });
 
     const res = fuse.search(descriptor);
-    console.log(res.slice(0, 10))
     const element_to_click_on = res[0].item
     element_to_click_on.score = res[0].score
     console.log(element_to_click_on)

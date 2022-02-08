@@ -11,17 +11,27 @@ import prompt from 'prompt';
 import create_fake_user from './util/CreateFakeUser.js';
 import numeric_month_to_month from './util/NumericMonthToMonth.js';
 import { add_to_firestore } from './util/Firestore.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+import fs from 'fs';
+
+
 
 const fakerator = Fakerator();
 
 (async () => {
+    const user_data_dir = `${__dirname}/../temp/${Math.random().toString(36).substring(2, 8)}`
+    console.log(`New user data dir ${user_data_dir}`)
+    fs.mkdirSync(user_data_dir)
     const browser = await puppeteer.launch({ 
         headless: false, 
         defaultViewport: null,
         args: [
             '--disable-web-security',
             '--disable-site-isolation-trials',
-            '--user-data-dir=/home/drg101/troll_data_dir/'
+            `--user-data-dir=${user_data_dir}`
         ] 
     });
     const context = browser.defaultBrowserContext();
@@ -72,7 +82,7 @@ const fakerator = Fakerator();
 
     await page.waitForTimeout(10000)
     // await click_on("blue next", page, cursor)
-    await click_on("blue next", page, cursor)
+    // await click_on("blue next", page, cursor)
     await prompt.get('done w/ captcha?');
     await click_on("no", page, cursor)
 
